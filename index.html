@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="hi" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FastPAN - Aadhaar to PAN Finder</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono-code { font-family: 'JetBrains Mono', monospace; }
+    .pan-card-bg {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-sky-500 flex items-center justify-center text-white shadow-md shadow-indigo-100">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-lg text-slate-900 tracking-tight">FastPAN Finder</h1>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">
+              Fastest & Accurate
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">Instant Aadhaar to PAN Verification System</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="openSettingsBtn" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 transition shadow-sm">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>API Settings</span>
+        </button>
+        <button id="viewHistoryBtn" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 transition shadow-sm">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="hidden sm:inline">Recent</span> History (<span id="historyCountBadge">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notice Banner for CORS & GitHub Pages -->
+  <div class="bg-indigo-50 border-b border-indigo-100 px-4 py-2 text-xs text-indigo-900 flex items-center justify-between">
+    <div class="max-w-6xl mx-auto w-full flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>GitHub Pages Ready: Fast direct lookup with automated CORS fallback proxy support.</span>
+      </div>
+      <a href="#howItWorks" id="viewDocsLink" class="text-indigo-600 font-semibold hover:underline flex-shrink-0">Setup Guide &darr;</a>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-8">
+
+    <!-- Hero / Search Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Left Column: Input Form -->
+      <div class="lg:col-span-6 flex flex-col gap-6">
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Aadhaar &rarr; PAN Search</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Enter 12-digit Aadhaar number to fetch registered PAN</p>
+            </div>
+            <div class="h-8 px-2.5 rounded-lg bg-blue-50 border border-blue-100 flex items-center gap-1.5 text-blue-700 text-xs font-semibold">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Live API
+            </div>
+          </div>
+
+          <form id="searchForm" class="space-y-5">
+            <div>
+              <label for="aadhaarInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-2">
+                Aadhaar Number (12 Digits)
+              </label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  id="aadhaarInput"
+                  inputmode="numeric"
+                  maxlength="14"
+                  placeholder="0000 0000 0000" 
+                  autocomplete="off"
+                  class="w-full text-center sm:text-left font-mono-code text-xl sm:text-2xl font-bold tracking-widest text-slate-900 bg-slate-50 border-2 border-slate-300 rounded-xl px-4 py-3.5 focus:bg-white focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none transition placeholder-slate-300"
+                  required
+                >
+                <button type="button" id="clearInputBtn" class="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 hidden rounded-md hover:bg-slate-200/60 transition">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div class="flex items-center justify-between mt-2 text-xs">
+                <span id="validationMessage" class="text-slate-500">Only numbers allowed</span>
+                <span id="digitCounter" class="font-mono-code text-slate-400 font-semibold">0 / 12</span>
+              </div>
+            </div>
+
+            <!-- Fast Action Button -->
+            <button 
+              type="submit" 
+              id="submitBtn"
+              class="w-full py-3.5 px-6 rounded-xl text-white font-semibold text-base shadow-md shadow-indigo-200 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              <svg id="searchIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <svg id="loadingSpinner" class="w-5 h-5 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span id="submitBtnText">Find PAN</span>
+            </button>
+          </form>
+
+          <!-- Security and Cost Metadata Footnote -->
+          <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Standard Rate: ₹6.00 / hit
+            </span>
+            <span class="text-slate-400">Charged on success only</span>
+          </div>
+        </div>
+
+        <!-- Quick API Status Card -->
+        <div class="bg-slate-100/80 rounded-xl p-4 border border-slate-200/80 text-xs flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+            <span class="text-slate-700 font-medium">Configured Key:</span>
+            <span id="activeKeyDisplay" class="font-mono-code text-slate-500">5b3bb1...bd8b</span>
+          </div>
+          <button id="testConnectionBtn" class="text-indigo-600 hover:text-indigo-800 font-semibold underline">Edit Key</button>
+        </div>
+      </div>
+
+      <!-- Right Column: Result Presentation Card -->
+      <div class="lg:col-span-6 flex flex-col gap-6">
+
+        <!-- Default Empty State -->
+        <div id="emptyResultCard" class="bg-white rounded-2xl border border-dashed border-slate-300 p-8 text-center flex flex-col items-center justify-center min-h-[340px]">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-4">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-slate-700 mb-1">Result will appear here</h3>
+          <p class="text-xs text-slate-500 max-w-xs">
+            Enter any valid 12-digit Aadhaar number and click "Find PAN" to view the linked PAN card instantly.
+          </p>
+        </div>
+
+        <!-- Success Result Card (Hidden by default) -->
+        <div id="successResultCard" class="hidden flex flex-col gap-4">
+          <!-- Realistic Indian PAN Card Graphic Representation -->
+          <div class="pan-card-bg rounded-2xl p-6 text-white shadow-xl relative overflow-hidden border border-blue-400/20">
+            <!-- Background Watermark / Hologram Effect -->
+            <div class="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-white/5 pointer-events-none"></div>
+            <div class="absolute right-12 top-6 w-20 h-20 rounded-full bg-amber-400/10 pointer-events-none"></div>
+
+            <div class="flex items-center justify-between pb-4 border-b border-white/15">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🇮🇳</span>
+                <div>
+                  <div class="text-[10px] uppercase tracking-wider text-blue-200 font-semibold">INCOME TAX DEPARTMENT</div>
+                  <div class="text-xs font-bold tracking-wide">GOVT. OF INDIA</div>
+                </div>
+              </div>
+              <div class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold tracking-wider uppercase">
+                Active PAN
+              </div>
+            </div>
+
+            <!-- Card Middle Content -->
+            <div class="my-6">
+              <div class="text-xs text-blue-200 font-medium tracking-wider uppercase mb-1">
+                Permanent Account Number
+              </div>
+              <div class="flex items-center justify-between gap-3 bg-black/20 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10">
+                <span id="resultPanNumber" class="font-mono-code text-2xl sm:text-3xl font-extrabold tracking-wider text-amber-300">
+                  ABCDE1234F
+                </span>
+                <button id="copyPanBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 text-xs font-semibold text-white transition active:scale-95 shadow">
+                  <svg id="copyIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  <span id="copyBtnText">Copy</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Card Bottom Meta Details -->
+            <div class="grid grid-cols-2 gap-4 text-xs pt-3 border-t border-white/15">
+              <div>
+                <span class="text-blue-200 block text-[10px] uppercase">Searched Aadhaar</span>
+                <span id="resultAadhaarMasked" class="font-mono-code font-medium">XXXX XXXX 1234</span>
+              </div>
+              <div class="text-right">
+                <span class="text-blue-200 block text-[10px] uppercase">Wallet Balance</span>
+                <span id="resultBalance" class="font-mono-code font-bold text-emerald-300">₹99.50</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons on Result -->
+          <div class="flex items-center gap-3">
+            <button id="shareResultBtn" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Copy Full Details
+            </button>
+            <button id="resetSearchBtn" class="py-2.5 px-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-sm">
+              New Search
+            </button>
+          </div>
+        </div>
+
+        <!-- Error Card (Hidden by default) -->
+        <div id="errorResultCard" class="hidden bg-rose-50 border border-rose-200 rounded-2xl p-6 text-rose-900">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 flex-shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h4 class="font-bold text-sm text-rose-950 mb-1">Search Failed</h4>
+              <p id="errorMessageText" class="text-xs text-rose-800 leading-relaxed mb-3">
+                Unable to fetch PAN details for this Aadhaar number.
+              </p>
+              <div id="corsTroubleshootingBox" class="hidden bg-white/80 p-3 rounded-lg border border-rose-200 text-xs text-slate-700 space-y-2">
+                <div class="font-semibold text-rose-900 flex items-center gap-1.5">
+                  <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Browser CORS Warning
+                </div>
+                <p>
+                  Browser security blocked the direct API call because the origin domain doesn't match the server.
+                </p>
+                <button id="enableCorsProxyBtn" class="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition">
+                  Enable Automated CORS Proxy & Retry
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Recent History Section -->
+    <section id="historySection" class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <h3 class="font-bold text-base text-slate-900">Recent Search Logs</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="exportCsvBtn" class="text-xs text-slate-600 hover:text-slate-900 font-medium px-2.5 py-1 rounded border border-slate-200 hover:bg-slate-50 transition">
+            Export CSV
+          </button>
+          <button id="clearHistoryBtn" class="text-xs text-rose-600 hover:text-rose-800 font-medium px-2.5 py-1 rounded border border-rose-200 hover:bg-rose-50 transition">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-slate-50 border-y border-slate-200 text-slate-500 uppercase font-semibold">
+              <th class="py-2.5 px-3">Time</th>
+              <th class="py-2.5 px-3">Aadhaar (Masked)</th>
+              <th class="py-2.5 px-3">PAN Number</th>
+              <th class="py-2.5 px-3">Cost</th>
+              <th class="py-2.5 px-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody" class="divide-y divide-slate-100 font-mono-code">
+            <!-- Dynamic rows will be injected here -->
+            <tr id="emptyHistoryRow">
+              <td colspan="5" class="py-8 text-center text-slate-400 font-sans">
+                No recent searches found on this browser.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Setup Guide / Documentation Section for GitHub Deployment -->
+    <section id="howItWorks" class="bg-slate-900 text-slate-200 rounded-2xl p-6 sm:p-8">
+      <div class="max-w-3xl">
+        <h3 class="text-lg font-bold text-white mb-2">GitHub Pages Deployment Instructions</h3>
+        <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+          Follow these 3 easy steps to host this tool on your GitHub repository completely free:
+        </p>
+
+        <div class="space-y-4 text-xs">
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold flex-shrink-0">1</div>
+            <div>
+              <h4 class="font-bold text-white text-sm">Create repository on GitHub</h4>
+              <p class="text-slate-400 mt-0.5">Create a new repository (e.g. <code class="text-indigo-300 font-mono-code">pan-finder</code>) on GitHub.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold flex-shrink-0">2</div>
+            <div>
+              <h4 class="font-bold text-white text-sm">Upload this file as <code class="text-indigo-300 font-mono-code">index.html</code></h4>
+              <p class="text-slate-400 mt-0.5">Upload this single file into the main root of your repo. Commit changes.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold flex-shrink-0">3</div>
+            <div>
+              <h4 class="font-bold text-white text-sm">Turn on GitHub Pages</h4>
+              <p class="text-slate-400 mt-0.5">Go to <strong>Settings &rarr; Pages &rarr; Branch (main) &rarr; Save</strong>. Your site will be live instantly at <code class="text-emerald-400 font-mono-code">https://username.github.io/pan-finder/</code>.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-5 border-t border-slate-800 text-xs text-amber-300/90 flex items-start gap-2">
+          <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span><strong>Important Security Note:</strong> Since GitHub Pages is public, anyone viewing page source could copy your API key. For complete safety, use the Settings dialog to proxy through Cloudflare Worker or keep your repo private.</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Settings Modal (In-page modal, no prompt/alert) -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <h3 class="font-bold text-base text-slate-900">API & Proxy Configuration</h3>
+        <button id="closeSettingsModalBtn" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="space-y-4 py-4 text-xs">
+        <div>
+          <label for="apiKeySettingInput" class="block font-semibold text-slate-700 mb-1">M PAN API Key</label>
+          <input 
+            type="text" 
+            id="apiKeySettingInput"
+            class="w-full font-mono-code text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:border-indigo-600 outline-none"
+            placeholder="Paste your API key here"
+          >
+          <p class="text-[11px] text-slate-500 mt-1">Found in your MPAN User Dashboard &rarr; API Section.</p>
+        </div>
+
+        <div>
+          <label for="endpointSettingInput" class="block font-semibold text-slate-700 mb-1">API Endpoint URL</label>
+          <input 
+            type="text" 
+            id="endpointSettingInput"
+            class="w-full font-mono-code text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:border-indigo-600 outline-none"
+            placeholder="https://mpan.in/api/pan.php"
+          >
+        </div>
+
+        <div class="pt-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="corsProxyCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+            <span class="font-medium text-slate-800">Use CORS Proxy (Recommended for GitHub Pages)</span>
+          </label>
+          <p class="text-[11px] text-slate-500 mt-1 pl-6">
+            Bypasses browser cross-origin restrictions when calling mpan.in directly from GitHub Pages.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+        <button id="resetSettingsDefaultBtn" class="px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-800">
+          Reset Default
+        </button>
+        <button id="saveSettingsBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition shadow">
+          Save Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Script Implementation -->
+  <script>
+    (function() {
+      // Configuration Defaults
+      const DEFAULT_API_KEY = "5b3bb13a8a1d0b11a1d1655dfd4fb65f55b6bd8b";
+      const DEFAULT_ENDPOINT = "https://mpan.in/api/pan.php";
+      const PUBLIC_CORS_PROXY = "https://corsproxy.io/?url=";
+
+      // State Management with try/catch for localStorage
+      let config = {
+        apiKey: DEFAULT_API_KEY,
+        endpoint: DEFAULT_ENDPOINT,
+        useProxy: false
+      };
+
+      try {
+        const savedConfig = localStorage.getItem('fastpan_config');
+        if (savedConfig) {
+          config = Object.assign(config, JSON.parse(savedConfig));
+        }
+      } catch (e) {
+        console.warn('localStorage not accessible for config', e);
+      }
+
+      let history = [];
+      try {
+        const savedHistory = localStorage.getItem('fastpan_history');
+        if (savedHistory) {
+          history = JSON.parse(savedHistory);
+        }
+      } catch (e) {
+        console.warn('localStorage not accessible for history', e);
+      }
+
+      // DOM Elements
+      const aadhaarInput = document.getElementById('aadhaarInput');
+      const clearInputBtn = document.getElementById('clearInputBtn');
+      const digitCounter = document.getElementById('digitCounter');
+      const validationMessage = document.getElementById('validationMessage');
+      const searchForm = document.getElementById('searchForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const submitBtnText = document.getElementById('submitBtnText');
+      const searchIcon = document.getElementById('searchIcon');
+      const loadingSpinner = document.getElementById('loadingSpinner');
+
+      const emptyResultCard = document.getElementById('emptyResultCard');
+      const successResultCard = document.getElementById('successResultCard');
+      const errorResultCard = document.getElementById('errorResultCard');
+      const resultPanNumber = document.getElementById('resultPanNumber');
+      const resultAadhaarMasked = document.getElementById('resultAadhaarMasked');
+      const resultBalance = document.getElementById('resultBalance');
+      const copyPanBtn = document.getElementById('copyPanBtn');
+      const copyBtnText = document.getElementById('copyBtnText');
+      const shareResultBtn = document.getElementById('shareResultBtn');
+      const resetSearchBtn = document.getElementById('resetSearchBtn');
+      const errorMessageText = document.getElementById('errorMessageText');
+      const corsTroubleshootingBox = document.getElementById('corsTroubleshootingBox');
+      const enableCorsProxyBtn = document.getElementById('enableCorsProxyBtn');
+
+      const activeKeyDisplay = document.getElementById('activeKeyDisplay');
+      const testConnectionBtn = document.getElementById('testConnectionBtn');
+      const settingsModal = document.getElementById('settingsModal');
+      const openSettingsBtn = document.getElementById('openSettingsBtn');
+      const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+      const apiKeySettingInput = document.getElementById('apiKeySettingInput');
+      const endpointSettingInput = document.getElementById('endpointSettingInput');
+      const corsProxyCheckbox = document.getElementById('corsProxyCheckbox');
+      const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+      const resetSettingsDefaultBtn = document.getElementById('resetSettingsDefaultBtn');
+
+      const historyTableBody = document.getElementById('historyTableBody');
+      const emptyHistoryRow = document.getElementById('emptyHistoryRow');
+      const historyCountBadge = document.getElementById('historyCountBadge');
+      const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+      const exportCsvBtn = document.getElementById('exportCsvBtn');
+      const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+
+      // Toast Notification Function
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold flex items-center justify-between gap-3 transform transition-all duration-300 ease-out translate-y-2 opacity-0 ${
+          type === 'success' ? 'bg-emerald-900 text-emerald-100 border-emerald-700' :
+          type === 'error' ? 'bg-rose-900 text-rose-100 border-rose-700' :
+          'bg-slate-900 text-slate-100 border-slate-700'
+        }`;
+
+        toast.innerHTML = `
+          <span>${message}</span>
+          <button class="text-white/60 hover:text-white p-0.5 rounded">&times;</button>
+        `;
+
+        container.appendChild(toast);
+
+        // Animate in
+        requestAnimationFrame(() => {
+          toast.classList.remove('translate-y-2', 'opacity-0');
+        });
+
+        const closeBtn = toast.querySelector('button');
+        const removeToast = () => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        };
+
+        closeBtn.addEventListener('click', removeToast);
+        setTimeout(removeToast, 4000);
+      }
+
+      // Safe Clipboard Copy Helper
+      function copyToClipboard(text, successMsg = 'Copied to clipboard!') {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast(successMsg, 'success');
+          }).catch(() => fallbackCopy(text, successMsg));
+        } else {
+          fallbackCopy(text, successMsg);
+        }
+      }
+
+      function fallbackCopy(text, successMsg) {
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+          showToast(successMsg, 'success');
+        } catch (err) {
+          showToast('Failed to copy. Please select manually.', 'error');
+        }
+      }
+
+      // Update Key Display in UI
+      function updateUIKeyDisplay() {
+        const key = config.apiKey || '';
+        if (key.length > 10) {
+          activeKeyDisplay.textContent = key.substring(0, 6) + '...' + key.substring(key.length - 4);
+        } else {
+          activeKeyDisplay.textContent = key || 'Not configured';
+        }
+      }
+      updateUIKeyDisplay();
+
+      // Format Aadhaar Input with 4-4-4 spacing
+      function formatAadhaar(value) {
+        const clean = value.replace(/\D/g, '').slice(0, 12);
+        const parts = [];
+        for (let i = 0; i < clean.length; i += 4) {
+          parts.push(clean.substring(i, i + 4));
+        }
+        return {
+          formatted: parts.join(' '),
+          raw: clean
+        };
+      }
+
+      aadhaarInput.addEventListener('input', (e) => {
+        const currentVal = e.target.value;
+        const res = formatAadhaar(currentVal);
+        e.target.value = res.formatted;
+
+        const count = res.raw.length;
+        digitCounter.textContent = `${count} / 12`;
+
+        if (count > 0) {
+          clearInputBtn.classList.remove('hidden');
+        } else {
+          clearInputBtn.classList.add('hidden');
+        }
+
+        if (count === 12) {
+          digitCounter.classList.remove('text-slate-400');
+          digitCounter.classList.add('text-emerald-600');
+          validationMessage.textContent = '12 digits ready for search';
+          validationMessage.className = 'text-emerald-600 font-medium';
+        } else if (count > 0) {
+          digitCounter.classList.remove('text-emerald-600');
+          digitCounter.classList.add('text-slate-400');
+          validationMessage.textContent = `Need ${12 - count} more digit${12 - count > 1 ? 's' : ''}`;
+          validationMessage.className = 'text-slate-500';
+        } else {
+          digitCounter.classList.remove('text-emerald-600');
+          digitCounter.classList.add('text-slate-400');
+          validationMessage.textContent = 'Only numbers allowed';
+          validationMessage.className = 'text-slate-500';
+        }
+      });
+
+      clearInputBtn.addEventListener('click', () => {
+        aadhaarInput.value = '';
+        aadhaarInput.dispatchEvent(new Event('input'));
+        aadhaarInput.focus();
+      });
+
+      // Render History Table
+      function renderHistory() {
+        historyCountBadge.textContent = history.length;
+        if (history.length === 0) {
+          historyTableBody.innerHTML = '';
+          historyTableBody.appendChild(emptyHistoryRow);
+          return;
+        }
+
+        historyTableBody.innerHTML = '';
+        history.slice(0, 50).forEach((item, index) => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-50/80 transition-colors';
+          tr.innerHTML = `
+            <td class="py-2.5 px-3 text-slate-500 font-sans">${item.time}</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-700">${item.maskedAadhaar}</td>
+            <td class="py-2.5 px-3 font-bold text-indigo-700 tracking-wider">${item.pan}</td>
+            <td class="py-2.5 px-3 text-slate-600 font-sans">₹${item.cost || '6.00'}</td>
+            <td class="py-2.5 px-3 text-right">
+              <button data-pan="${item.pan}" class="copy-history-btn inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-sans font-semibold py-0.5 px-2 rounded hover:bg-indigo-50 transition">
+                Copy
+              </button>
+            </td>
+          `;
+          historyTableBody.appendChild(tr);
+        });
+
+        // Add event listeners for copy buttons in table
+        document.querySelectorAll('.copy-history-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const pan = e.currentTarget.getAttribute('data-pan');
+            copyToClipboard(pan, `PAN ${pan} copied!`);
+          });
+        });
+      }
+      renderHistory();
+
+      // Clear History Handler
+      clearHistoryBtn.addEventListener('click', () => {
+        history = [];
+        try {
+          localStorage.removeItem('fastpan_history');
+        } catch (e) {}
+        renderHistory();
+        showToast('History cleared', 'info');
+      });
+
+      // Export History to CSV
+      exportCsvBtn.addEventListener('click', () => {
+        if (history.length === 0) {
+          showToast('No history records to export', 'error');
+          return;
+        }
+        let csv = 'Timestamp,Aadhaar_Masked,PAN,Cost\n';
+        history.forEach(h => {
+          csv += `"${h.time}","${h.maskedAadhaar}","${h.pan}","${h.cost || '6.00'}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `PAN_Search_History_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('History CSV exported!', 'success');
+      });
+
+      viewHistoryBtn.addEventListener('click', () => {
+        document.getElementById('historySection').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // Settings Modal Open/Close
+      function openSettings() {
+        apiKeySettingInput.value = config.apiKey || '';
+        endpointSettingInput.value = config.endpoint || DEFAULT_ENDPOINT;
+        corsProxyCheckbox.checked = !!config.useProxy;
+        settingsModal.classList.remove('hidden');
+      }
+
+      function closeSettings() {
+        settingsModal.classList.add('hidden');
+      }
+
+      openSettingsBtn.addEventListener('click', openSettings);
+      testConnectionBtn.addEventListener('click', openSettings);
+      closeSettingsModalBtn.addEventListener('click', closeSettings);
+
+      saveSettingsBtn.addEventListener('click', () => {
+        config.apiKey = apiKeySettingInput.value.trim();
+        config.endpoint = endpointSettingInput.value.trim() || DEFAULT_ENDPOINT;
+        config.useProxy = corsProxyCheckbox.checked;
+
+        try {
+          localStorage.setItem('fastpan_config', JSON.stringify(config));
+        } catch (e) {}
+
+        updateUIKeyDisplay();
+        closeSettings();
+        showToast('Settings saved successfully!', 'success');
+      });
+
+      resetSettingsDefaultBtn.addEventListener('click', () => {
+        apiKeySettingInput.value = DEFAULT_API_KEY;
+        endpointSettingInput.value = DEFAULT_ENDPOINT;
+        corsProxyCheckbox.checked = false;
+      });
+
+      enableCorsProxyBtn.addEventListener('click', () => {
+        config.useProxy = true;
+        try {
+          localStorage.setItem('fastpan_config', JSON.stringify(config));
+        } catch (e) {}
+        corsTroubleshootingBox.classList.add('hidden');
+        errorResultCard.classList.add('hidden');
+        showToast('CORS Proxy enabled! Retrying search...', 'info');
+        searchForm.dispatchEvent(new Event('submit'));
+      });
+
+      // PAN Card Copy Actions
+      copyPanBtn.addEventListener('click', () => {
+        const pan = resultPanNumber.textContent.trim();
+        copyToClipboard(pan, `PAN ${pan} copied!`);
+        copyBtnText.textContent = 'Copied!';
+        setTimeout(() => {
+          copyBtnText.textContent = 'Copy';
+        }, 2000);
+      });
+
+      shareResultBtn.addEventListener('click', () => {
+        const pan = resultPanNumber.textContent.trim();
+        const aadh = resultAadhaarMasked.textContent.trim();
+        const bal = resultBalance.textContent.trim();
+        const text = `Aadhaar: ${aadh}\nPAN: ${pan}\nRemaining Balance: ${bal}`;
+        copyToClipboard(text, 'Full details copied!');
+      });
+
+      resetSearchBtn.addEventListener('click', () => {
+        successResultCard.classList.add('hidden');
+        errorResultCard.classList.add('hidden');
+        emptyResultCard.classList.remove('hidden');
+        aadhaarInput.value = '';
+        aadhaarInput.dispatchEvent(new Event('input'));
+        aadhaarInput.focus();
+      });
+
+      // API Search Execution Logic
+      searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const rawAadhaar = aadhaarInput.value.replace(/\D/g, '');
+
+        if (rawAadhaar.length !== 12) {
+          showToast('Please enter a full 12-digit Aadhaar number', 'error');
+          aadhaarInput.focus();
+          return;
+        }
+
+        if (!config.apiKey) {
+          showToast('Please configure an API Key in settings first', 'error');
+          openSettings();
+          return;
+        }
+
+        // UI State: Loading
+        submitBtn.disabled = true;
+        submitBtnText.textContent = 'Searching PAN...';
+        searchIcon.classList.add('hidden');
+        loadingSpinner.classList.remove('hidden');
+        emptyResultCard.classList.add('hidden');
+        errorResultCard.classList.add('hidden');
+        successResultCard.classList.add('hidden');
+        corsTroubleshootingBox.classList.add('hidden');
+
+        let targetUrl = config.endpoint || DEFAULT_ENDPOINT;
+        if (config.useProxy) {
+          targetUrl = PUBLIC_CORS_PROXY + encodeURIComponent(targetUrl);
+        }
+
+        const payload = {
+          api_key: config.apiKey,
+          aadhaar: rawAadhaar
+        };
+
+        try {
+          const response = await fetch(targetUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json();
+
+          if (data && (data.ok === true || data.status === 'success' || data.pan)) {
+            // Success
+            const pan = data.pan || 'N/A';
+            const cost = data.cost !== undefined ? `₹${Number(data.cost).toFixed(2)}` : '₹6.00';
+            const balance = data.balance !== undefined ? `₹${Number(data.balance).toFixed(2)}` : 'N/A';
+            const masked = `XXXX XXXX ${rawAadhaar.slice(-4)}`;
+
+            resultPanNumber.textContent = pan;
+            resultAadhaarMasked.textContent = masked;
+            resultBalance.textContent = balance;
+
+            successResultCard.classList.remove('hidden');
+            showToast(`PAN Found: ${pan}`, 'success');
+
+            // Save in history
+            const record = {
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              maskedAadhaar: masked,
+              pan: pan,
+              cost: data.cost || '6.00'
+            };
+            history.unshift(record);
+            if (history.length > 50) history.pop();
+            try {
+              localStorage.setItem('fastpan_history', JSON.stringify(history));
+            } catch (e) {}
+            renderHistory();
+
+          } else {
+            // API returned failure or error response
+            const msg = data.message || data.error || data.msg || 'Aadhaar not linked with any PAN or record not found.';
+            errorMessageText.textContent = msg;
+            errorResultCard.classList.remove('hidden');
+            showToast(msg, 'error');
+          }
+
+        } catch (err) {
+          console.error('Fetch error:', err);
+          let errDetail = err.message || 'Network request failed';
+
+          // Detect CORS or Network failure
+          if (err.name === 'TypeError' || errDetail.includes('fetch') || errDetail.includes('Failed to fetch')) {
+            errorMessageText.textContent = 'Browser blocked request due to CORS Policy (mpan.in does not send Access-Control-Allow-Origin headers to GitHub Pages).';
+            corsTroubleshootingBox.classList.remove('hidden');
+          } else {
+            errorMessageText.textContent = `Error: ${errDetail}. Please check your connection and API endpoint.`;
+          }
+
+          errorResultCard.classList.remove('hidden');
+          showToast('Request failed. See details below.', 'error');
+
+        } finally {
+          submitBtn.disabled = false;
+          submitBtnText.textContent = 'Find PAN';
+          searchIcon.classList.remove('hidden');
+          loadingSpinner.classList.add('hidden');
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>
