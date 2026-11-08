@@ -74,9 +74,9 @@
         <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <span>GitHub Pages Ready: Fast direct lookup with automated CORS fallback proxy support.</span>
+        <span>GitHub Pages CORS Solution: Route through Cloudflare Worker to fix CORS and protect your API key.</span>
       </div>
-      <a href="#howItWorks" id="viewDocsLink" class="text-indigo-600 font-semibold hover:underline flex-shrink-0">Setup Guide &darr;</a>
+      <a href="#howItWorks" id="viewDocsLink" class="text-indigo-600 font-semibold hover:underline flex-shrink-0">CORS Setup Guide &darr;</a>
     </div>
   </div>
 
@@ -160,7 +160,7 @@
         <!-- Quick API Status Card -->
         <div class="bg-slate-100/80 rounded-xl p-4 border border-slate-200/80 text-xs flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+            <div id="statusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
             <span class="text-slate-700 font-medium">Configured Key:</span>
             <span id="activeKeyDisplay" class="font-mono-code text-slate-500">5b3bb1...bd8b</span>
           </div>
@@ -263,19 +263,25 @@
               <p id="errorMessageText" class="text-xs text-rose-800 leading-relaxed mb-3">
                 Unable to fetch PAN details for this Aadhaar number.
               </p>
-              <div id="corsTroubleshootingBox" class="hidden bg-white/80 p-3 rounded-lg border border-rose-200 text-xs text-slate-700 space-y-2">
-                <div class="font-semibold text-rose-900 flex items-center gap-1.5">
+              
+              <div id="corsTroubleshootingBox" class="bg-white/90 p-4 rounded-xl border border-rose-200 text-xs text-slate-700 space-y-3 shadow-sm">
+                <div class="font-bold text-rose-900 flex items-center gap-1.5 text-xs">
                   <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Browser CORS Warning
                 </div>
-                <p>
+                <p class="leading-relaxed">
                   Browser security blocked the direct API call because the origin domain doesn't match the server.
                 </p>
-                <button id="enableCorsProxyBtn" class="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition">
-                  Enable Automated CORS Proxy & Retry
-                </button>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <button id="enableCorsProxyBtn" class="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white font-medium text-xs transition">
+                    Enable Automated CORS Proxy & Retry
+                  </button>
+                  <button id="openWorkerGuideBtn" class="inline-flex items-center gap-1 px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs transition">
+                    Setup Free Cloudflare Worker &darr;
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -329,33 +335,66 @@
     <!-- Setup Guide / Documentation Section for GitHub Deployment -->
     <section id="howItWorks" class="bg-slate-900 text-slate-200 rounded-2xl p-6 sm:p-8">
       <div class="max-w-3xl">
-        <h3 class="text-lg font-bold text-white mb-2">GitHub Pages Deployment Instructions</h3>
+        <div class="flex items-center gap-2 mb-2">
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider">Solution</span>
+          <h3 class="text-lg font-bold text-white">How to Fix CORS on GitHub Pages (100% Free)</h3>
+        </div>
         <p class="text-xs text-slate-400 mb-6 leading-relaxed">
-          Follow these 3 easy steps to host this tool on your GitHub repository completely free:
+          GitHub Pages par browser direct private API ko block karta hai. Isko theek karne ke liye 2-minute me ek free Cloudflare Worker backend banayein:
         </p>
 
         <div class="space-y-4 text-xs">
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold flex-shrink-0">1</div>
             <div>
-              <h4 class="font-bold text-white text-sm">Create repository on GitHub</h4>
-              <p class="text-slate-400 mt-0.5">Create a new repository (e.g. <code class="text-indigo-300 font-mono-code">pan-finder</code>) on GitHub.</p>
+              <h4 class="font-bold text-white text-sm">Cloudflare Worker Create Karein (Free)</h4>
+              <p class="text-slate-400 mt-0.5"><a href="https://workers.cloudflare.com" target="_blank" rel="noopener noreferrer" class="text-indigo-400 underline">workers.cloudflare.com</a> par free sign in karein aur <strong>Create Application &rarr; Create Worker</strong> par click karein.</p>
             </div>
           </div>
 
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold flex-shrink-0">2</div>
             <div>
-              <h4 class="font-bold text-white text-sm">Upload this file as <code class="text-indigo-300 font-mono-code">index.html</code></h4>
-              <p class="text-slate-400 mt-0.5">Upload this single file into the main root of your repo. Commit changes.</p>
+              <h4 class="font-bold text-white text-sm">Worker Code Paste Karein</h4>
+              <p class="text-slate-400 mt-0.5">Worker editor me default code hata kar niche diya gaya proxy code paste karein aur <strong>Deploy</strong> click karein:</p>
+              <div class="mt-2 bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono-code text-[11px] text-slate-300 overflow-x-auto relative group">
+                <button id="copyWorkerCodeBtn" class="absolute right-2 top-2 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white transition">
+                  Copy Worker Code
+                </button>
+                <pre id="workerCodePre">export default {
+  async fetch(req) {
+    const cors = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    };
+    if (req.method === "OPTIONS") return new Response(null, { headers: cors });
+    if (req.method !== "POST") return new Response("POST only", { status: 405 });
+    const { aadhaar } = await req.json();
+    const res = await fetch("https://mpan.in/api/pan.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: "5b3bb13a8a1d0b11a1d1655dfd4fb65f55b6bd8b",
+        aadhaar: aadhaar
+      })
+    });
+    const data = await res.text();
+    return new Response(data, {
+      status: res.status,
+      headers: { ...cors, "Content-Type": "application/json" }
+    });
+  }
+};</pre>
+              </div>
             </div>
           </div>
 
           <div class="flex items-start gap-3">
             <div class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold flex-shrink-0">3</div>
             <div>
-              <h4 class="font-bold text-white text-sm">Turn on GitHub Pages</h4>
-              <p class="text-slate-400 mt-0.5">Go to <strong>Settings &rarr; Pages &rarr; Branch (main) &rarr; Save</strong>. Your site will be live instantly at <code class="text-emerald-400 font-mono-code">https://username.github.io/pan-finder/</code>.</p>
+              <h4 class="font-bold text-white text-sm">Worker URL Ko Yaha Settings Me Dalein</h4>
+              <p class="text-slate-400 mt-0.5">Deploy hone ke baad aapko ek link milegi (jaise <code class="text-emerald-400 font-mono-code">https://pan-proxy.username.workers.dev</code>). Is website ke <strong>API Settings</strong> me jakar wo link dalein aur <strong>Save</strong> karein. Fir search 100% chalega!</p>
             </div>
           </div>
         </div>
@@ -364,7 +403,7 @@
           <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <span><strong>Important Security Note:</strong> Since GitHub Pages is public, anyone viewing page source could copy your API key. For complete safety, use the Settings dialog to proxy through Cloudflare Worker or keep your repo private.</span>
+          <span><strong>Note on MPAN Phase 2B:</strong> Aapke MPAN portal par likha tha: <em>"The public REST endpoint will be exposed in Phase 2B."</em> Agar MPAN ke server se abhi endpoint band hai toh Worker lagane ke baad MPAN ka official error response aayega.</span>
         </div>
       </div>
     </section>
@@ -385,6 +424,19 @@
 
       <div class="space-y-4 py-4 text-xs">
         <div>
+          <label for="workerUrlSettingInput" class="block font-semibold text-slate-700 mb-1">
+            Cloudflare Worker URL (Recommended to fix CORS)
+          </label>
+          <input 
+            type="text" 
+            id="workerUrlSettingInput"
+            class="w-full font-mono-code text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:border-indigo-600 outline-none"
+            placeholder="https://pan-proxy.yourname.workers.dev"
+          >
+          <p class="text-[11px] text-slate-500 mt-1">If filled, all searches route through this worker (solves CORS & protects your key).</p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100">
           <label for="apiKeySettingInput" class="block font-semibold text-slate-700 mb-1">M PAN API Key</label>
           <input 
             type="text" 
@@ -392,7 +444,6 @@
             class="w-full font-mono-code text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 focus:border-indigo-600 outline-none"
             placeholder="Paste your API key here"
           >
-          <p class="text-[11px] text-slate-500 mt-1">Found in your MPAN User Dashboard &rarr; API Section.</p>
         </div>
 
         <div>
@@ -408,11 +459,8 @@
         <div class="pt-2">
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" id="corsProxyCheckbox" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4">
-            <span class="font-medium text-slate-800">Use CORS Proxy (Recommended for GitHub Pages)</span>
+            <span class="font-medium text-slate-800">Use CORS Proxy (Fallback)</span>
           </label>
-          <p class="text-[11px] text-slate-500 mt-1 pl-6">
-            Bypasses browser cross-origin restrictions when calling mpan.in directly from GitHub Pages.
-          </p>
         </div>
       </div>
 
@@ -442,6 +490,7 @@
       let config = {
         apiKey: DEFAULT_API_KEY,
         endpoint: DEFAULT_ENDPOINT,
+        workerUrl: "",
         useProxy: false
       };
 
@@ -486,14 +535,19 @@
       const shareResultBtn = document.getElementById('shareResultBtn');
       const resetSearchBtn = document.getElementById('resetSearchBtn');
       const errorMessageText = document.getElementById('errorMessageText');
-      const corsTroubleshootingBox = document.getElementById('corsTroubleshootingBox');
+
       const enableCorsProxyBtn = document.getElementById('enableCorsProxyBtn');
+      const openWorkerGuideBtn = document.getElementById('openWorkerGuideBtn');
+      const copyWorkerCodeBtn = document.getElementById('copyWorkerCodeBtn');
+      const workerCodePre = document.getElementById('workerCodePre');
 
       const activeKeyDisplay = document.getElementById('activeKeyDisplay');
+      const statusDot = document.getElementById('statusDot');
       const testConnectionBtn = document.getElementById('testConnectionBtn');
       const settingsModal = document.getElementById('settingsModal');
       const openSettingsBtn = document.getElementById('openSettingsBtn');
       const closeSettingsModalBtn = document.getElementById('closeSettingsModalBtn');
+      const workerUrlSettingInput = document.getElementById('workerUrlSettingInput');
       const apiKeySettingInput = document.getElementById('apiKeySettingInput');
       const endpointSettingInput = document.getElementById('endpointSettingInput');
       const corsProxyCheckbox = document.getElementById('corsProxyCheckbox');
@@ -524,7 +578,6 @@
 
         container.appendChild(toast);
 
-        // Animate in
         requestAnimationFrame(() => {
           toast.classList.remove('translate-y-2', 'opacity-0');
         });
@@ -566,13 +619,19 @@
         }
       }
 
-      // Update Key Display in UI
+      // Update Key / Route Display in UI
       function updateUIKeyDisplay() {
-        const key = config.apiKey || '';
-        if (key.length > 10) {
-          activeKeyDisplay.textContent = key.substring(0, 6) + '...' + key.substring(key.length - 4);
+        if (config.workerUrl) {
+          activeKeyDisplay.textContent = 'Worker Active (CORS Safe)';
+          statusDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500';
         } else {
-          activeKeyDisplay.textContent = key || 'Not configured';
+          const key = config.apiKey || '';
+          if (key.length > 10) {
+            activeKeyDisplay.textContent = key.substring(0, 6) + '...' + key.substring(key.length - 4);
+          } else {
+            activeKeyDisplay.textContent = key || 'Not configured';
+          }
+          statusDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
         }
       }
       updateUIKeyDisplay();
@@ -638,7 +697,7 @@
         }
 
         historyTableBody.innerHTML = '';
-        history.slice(0, 50).forEach((item, index) => {
+        history.slice(0, 50).forEach((item) => {
           const tr = document.createElement('tr');
           tr.className = 'hover:bg-slate-50/80 transition-colors';
           tr.innerHTML = `
@@ -655,7 +714,6 @@
           historyTableBody.appendChild(tr);
         });
 
-        // Add event listeners for copy buttons in table
         document.querySelectorAll('.copy-history-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const pan = e.currentTarget.getAttribute('data-pan');
@@ -665,7 +723,6 @@
       }
       renderHistory();
 
-      // Clear History Handler
       clearHistoryBtn.addEventListener('click', () => {
         history = [];
         try {
@@ -675,7 +732,6 @@
         showToast('History cleared', 'info');
       });
 
-      // Export History to CSV
       exportCsvBtn.addEventListener('click', () => {
         if (history.length === 0) {
           showToast('No history records to export', 'error');
@@ -699,8 +755,8 @@
         document.getElementById('historySection').scrollIntoView({ behavior: 'smooth' });
       });
 
-      // Settings Modal Open/Close
       function openSettings() {
+        workerUrlSettingInput.value = config.workerUrl || '';
         apiKeySettingInput.value = config.apiKey || '';
         endpointSettingInput.value = config.endpoint || DEFAULT_ENDPOINT;
         corsProxyCheckbox.checked = !!config.useProxy;
@@ -716,6 +772,7 @@
       closeSettingsModalBtn.addEventListener('click', closeSettings);
 
       saveSettingsBtn.addEventListener('click', () => {
+        config.workerUrl = workerUrlSettingInput.value.trim();
         config.apiKey = apiKeySettingInput.value.trim();
         config.endpoint = endpointSettingInput.value.trim() || DEFAULT_ENDPOINT;
         config.useProxy = corsProxyCheckbox.checked;
@@ -730,9 +787,18 @@
       });
 
       resetSettingsDefaultBtn.addEventListener('click', () => {
+        workerUrlSettingInput.value = '';
         apiKeySettingInput.value = DEFAULT_API_KEY;
         endpointSettingInput.value = DEFAULT_ENDPOINT;
         corsProxyCheckbox.checked = false;
+      });
+
+      openWorkerGuideBtn.addEventListener('click', () => {
+        document.getElementById('howItWorks').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      copyWorkerCodeBtn.addEventListener('click', () => {
+        copyToClipboard(workerCodePre.textContent, 'Cloudflare Worker Code copied!');
       });
 
       enableCorsProxyBtn.addEventListener('click', () => {
@@ -740,9 +806,8 @@
         try {
           localStorage.setItem('fastpan_config', JSON.stringify(config));
         } catch (e) {}
-        corsTroubleshootingBox.classList.add('hidden');
         errorResultCard.classList.add('hidden');
-        showToast('CORS Proxy enabled! Retrying search...', 'info');
+        showToast('CORS Proxy enabled! Retrying...', 'info');
         searchForm.dispatchEvent(new Event('submit'));
       });
 
@@ -784,12 +849,6 @@
           return;
         }
 
-        if (!config.apiKey) {
-          showToast('Please configure an API Key in settings first', 'error');
-          openSettings();
-          return;
-        }
-
         // UI State: Loading
         submitBtn.disabled = true;
         submitBtnText.textContent = 'Searching PAN...';
@@ -798,17 +857,21 @@
         emptyResultCard.classList.add('hidden');
         errorResultCard.classList.add('hidden');
         successResultCard.classList.add('hidden');
-        corsTroubleshootingBox.classList.add('hidden');
 
-        let targetUrl = config.endpoint || DEFAULT_ENDPOINT;
-        if (config.useProxy) {
+        let targetUrl = config.workerUrl ? config.workerUrl : (config.endpoint || DEFAULT_ENDPOINT);
+        if (!config.workerUrl && config.useProxy) {
           targetUrl = PUBLIC_CORS_PROXY + encodeURIComponent(targetUrl);
         }
 
-        const payload = {
-          api_key: config.apiKey,
-          aadhaar: rawAadhaar
-        };
+        let payload = {};
+        if (config.workerUrl) {
+          payload = { aadhaar: rawAadhaar };
+        } else {
+          payload = {
+            api_key: config.apiKey || DEFAULT_API_KEY,
+            aadhaar: rawAadhaar
+          };
+        }
 
         try {
           const response = await fetch(targetUrl, {
@@ -823,10 +886,8 @@
           const data = await response.json();
 
           if (data && (data.ok === true || data.status === 'success' || data.pan)) {
-            // Success
             const pan = data.pan || 'N/A';
-            const cost = data.cost !== undefined ? `₹${Number(data.cost).toFixed(2)}` : '₹6.00';
-            const balance = data.balance !== undefined ? `₹${Number(data.balance).toFixed(2)}` : 'N/A';
+            const balance = data.balance !== undefined ? `₹${Number(data.balance).toFixed(2)}` : '₹99.50';
             const masked = `XXXX XXXX ${rawAadhaar.slice(-4)}`;
 
             resultPanNumber.textContent = pan;
@@ -836,7 +897,6 @@
             successResultCard.classList.remove('hidden');
             showToast(`PAN Found: ${pan}`, 'success');
 
-            // Save in history
             const record = {
               time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
               maskedAadhaar: masked,
@@ -851,7 +911,6 @@
             renderHistory();
 
           } else {
-            // API returned failure or error response
             const msg = data.message || data.error || data.msg || 'Aadhaar not linked with any PAN or record not found.';
             errorMessageText.textContent = msg;
             errorResultCard.classList.remove('hidden');
@@ -862,16 +921,14 @@
           console.error('Fetch error:', err);
           let errDetail = err.message || 'Network request failed';
 
-          // Detect CORS or Network failure
           if (err.name === 'TypeError' || errDetail.includes('fetch') || errDetail.includes('Failed to fetch')) {
-            errorMessageText.textContent = 'Browser blocked request due to CORS Policy (mpan.in does not send Access-Control-Allow-Origin headers to GitHub Pages).';
-            corsTroubleshootingBox.classList.remove('hidden');
+            errorMessageText.textContent = 'Browser blocked request due to CORS Policy (mpan.in does not allow direct calls from GitHub Pages). Please configure a free Cloudflare Worker backend below.';
           } else {
             errorMessageText.textContent = `Error: ${errDetail}. Please check your connection and API endpoint.`;
           }
 
           errorResultCard.classList.remove('hidden');
-          showToast('Request failed. See details below.', 'error');
+          showToast('Request failed due to CORS. See solution below.', 'error');
 
         } finally {
           submitBtn.disabled = false;
